@@ -1,0 +1,6 @@
+P18203	Q9BS40	similar
+P54396	Q9BS40	similar
+Q9BS40	P18203	similar
+P54396	P18203	similar
+Q9BS40	P54396	similar
+P18203	P54396	similar
