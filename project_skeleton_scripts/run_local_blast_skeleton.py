@@ -20,6 +20,7 @@ def blast(db, query, query_folder="./queries/", psiblast=False):
     :param query_folder: query folder name
     :param psiblast: True if PSI-BLAST should be used; False for normal BLAST
     :return: result from blast run
+
     """
     if psiblast:
         ##########################
@@ -72,11 +73,6 @@ def parse_blast_result(blast_result, blast_dict):
                 ### START CODING HERE ####
                 ##########################
                 # Parse the e-score corresponding to this line's (query, subject) pair and store it in blast_dict.
-                
-                ##todo: SELVITÄ MITEN SAAT PARSITTUA E_VALUEN STRINGISTÄ OIKEIN
-                ## PALAUTTAA NYT ESIM: 
-                ## sp|P0A836|SUCC_ECOLI	sp|P38516|RL4_THEMA	9.1
-
                 e_value = float(splitted_line[len(splitted_line) - 1])
                 key = (query, subject)
                 blast_dict[key] = e_value
@@ -164,17 +160,14 @@ def main(uniprot_id_file, query_folder, db, psiblast, output_filename, output_pn
         ##########################
         ### START CODING HERE ####
         ##########################
-        try:
-            # Run (PSI-)BLAST for all query proteins.
-            result = blast(db, query, query_folder, psiblast)
+        # Run (PSI-)BLAST for all query proteins.
+        result = blast(db, query, query_folder, psiblast)
 
-            # Store all the uniprot IDs in the uniprot_ids.
-            uniprot_id_list.append(line)
+        # Store all the uniprot IDs in the uniprot_ids.
+        uniprot_id_list.append(query)
 
-            # Parse and store the blast result in the blast_dict.
-            parse_blast_result(result, blast_dict)
-        except:
-            print("Something went wrong")
+        # Parse and store the blast result in the blast_dict.
+        parse_blast_result(result, blast_dict)
         ##########################
         ###  END CODING HERE  ####
         ##########################
