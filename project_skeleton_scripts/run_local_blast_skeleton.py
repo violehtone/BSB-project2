@@ -128,6 +128,9 @@ def plot_evalue_distribution(blast_dict, png_filename, evalue=100000):
     ##########################
     ### START CODING HERE ####
     ##########################
+    # Calculate the number of e-values lower than threshold.
+    # You will need to figure out how to pass evalue to this function.
+
     e_values_lower_than_threshold = 0
 
     for k, v in blast_dict.items():
@@ -136,9 +139,6 @@ def plot_evalue_distribution(blast_dict, png_filename, evalue=100000):
             e_values_lower_than_threshold += 1
     
     print("### INFO: E-values lower than treshold: ", e_values_lower_than_threshold)
-
-    # Calculate the number of e-values lower than threshold.
-    # You will need to figure out how to pass evalue to this function.
     pass
     ##########################
     ###  END CODING HERE  ####
