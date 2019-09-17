@@ -24,7 +24,7 @@ def retrieve_scop_data(scop_file):
             if(row[0][0] != "#"):
                 ## Get the PDB (dic key)
                 pdb = row[1]
-                
+
                 ## generate the scop hierarchy dic (dic value)
                 scop_dic = {}
                 scop_hierarchy = [x.strip() for x in row[5].split(',')] # creates a list of SCOP hierarchy data
@@ -36,13 +36,13 @@ def retrieve_scop_data(scop_file):
                 scop_sp = scop_hierarchy[5].split("=", 1)[1]
                 scop_px = scop_hierarchy[6].split("=", 1)[1]
 
-                scop_dic["class:"] = scop_class
-                scop_dic["fold:"] = scop_fold
-                scop_dic["superfamily:"] = scop_superfamily
-                scop_dic["family:"] = scop_family
-                scop_dic["domain:"] = scop_dm
-                scop_dic["species:"] = scop_sp # similar
-                scop_dic["protein:"] = scop_px
+                scop_dic["class"] = scop_class
+                scop_dic["fold"] = scop_fold
+                scop_dic["superfamily"] = scop_superfamily
+                scop_dic["family"] = scop_family
+                scop_dic["domain"] = scop_dm
+                scop_dic["species"] = scop_sp # similar
+                scop_dic["protein"] = scop_px
 
                 ## add an element to the scop_data dictionary
                 scop_data[pdb] = scop_dic
@@ -105,7 +105,7 @@ def generate_all_possible_protein_pairs(protein_ids):
     :param protein_ids: list of all proteins IDs.
     :return: list of possible unique protein pairs.
     """
-    pairs = list()
+    pairs = []
     ##########################
     ### START CODING HERE ####
     ##########################
@@ -115,9 +115,10 @@ def generate_all_possible_protein_pairs(protein_ids):
 
     # Get all permutations of length 2 from protein_ids
     perm = permutations(protein_ids, 2)
+    permList = list(perm)
 
     # Add the permutations to the pairs -list
-    for pair in list(perm):
+    for pair in permList:
         pairs.append(pair)
 
     ########################
@@ -144,19 +145,23 @@ def assign_homology(scop_dict, protein_ids_pdbs, pairs):
     for pair in pairs:
         protein1_id = pair[0] ## uniprot id
         protein2_id = pair[1] ## uniprot id
-        protein1_pdb = protein_ids_pdbs[protein1_id] #pdb
-        protein2_pdb = protein_ids_pdbs[protein2_id] #pdb
+        
+        protein1_pdb = protein_ids_pdbs[protein1_id].lower() #pdb
+        protein2_pdb = protein_ids_pdbs[protein2_id].lower() #pdb
 
-        # find scop-data for proteins:
-        protein1_scop_data = scop_dict[protein1_pdb]
-        protein2_scop_data = scop_dict[protein2_pdb]
+        try:
+            # find scop-data for proteins:
+            protein1_scop_data = scop_dict[protein1_pdb]
+            protein2_scop_data = scop_dict[protein2_pdb]
 
-        # find similarity for the protein pair
-        similarity = check_similarity_for_protein_pair(protein1_scop_data, protein2_scop_data)
+            # find similarity for the protein pair
+            similarity = check_similarity_for_protein_pair(protein1_scop_data, protein2_scop_data)
 
-        # add uniprot id : similarity -pair into scop_homology dict
-        scop_homology[(protein1_id, protein2_id), similarity]
-    
+            # add uniprot id : similarity -pair into scop_homology dict
+            scop_homology[(protein1_id, protein2_id)] = similarity
+        except KeyError:
+            print("Protein pair not found from SCOP data [%s, %s]", protein1_pdb, protein2_pdb)
+
     ########################
     ### END CODING HERE ####
     ########################
@@ -191,7 +196,8 @@ def read_protein_ids_file(filename):
         uniprot_id_list.append(protein_id)
     
     uniprot_ids.close()
-    return uniprot_ids
+
+    return uniprot_id_list
 
     #######################
     ### END CODING HERE ###
@@ -229,6 +235,10 @@ def main(uniprot_filename, output_filename, pdb_id_file, scop_file):
     ### START CODING HERE ####
     ##########################
 
+    ## Uniprot id i.e. P16099 / Q92547..
+    ## PDB id i.e. 2D5Z, 1FSL, 1LH3..
+    ## SCOP-ID i.e. 15225, 15230..
+
     # fetch a dict of {Uniprot_id : PDB}
     uniprot_PDB_mapping = read_lookup_table(pdb_id_file)
 
@@ -246,7 +256,6 @@ def main(uniprot_filename, output_filename, pdb_id_file, scop_file):
 
     # write the results
     write_results(output_filename, scop_homology)
-
 
     #######################
     ### END CODING HERE ###
