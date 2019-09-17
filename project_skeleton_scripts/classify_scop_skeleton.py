@@ -3,6 +3,7 @@
 import itertools
 import argparse
 import csv
+from itertools import permutations
 
 def retrieve_scop_data(scop_file):
     """
@@ -21,21 +22,27 @@ def retrieve_scop_data(scop_file):
         reader = csv.reader(sf, delimiter="\t")
         for row in reader:
             if(row[0][0] != "#"):
-                ## Get the PDB (key)
+                ## Get the PDB (dic key)
                 pdb = row[1]
                 
-                ## generate the scop hierarchy dic (value)
+                ## generate the scop hierarchy dic (dic value)
                 scop_dic = {}
-                scop_hierarchy = [x.strip() for x in row[5].split(',')]
-                scop_class = scop_hierarchy[1].split("=", 1)[1]
+                scop_hierarchy = [x.strip() for x in row[5].split(',')] # creates a list of SCOP hierarchy data
+                scop_class = scop_hierarchy[0].split("=", 1)[1]
                 scop_fold = scop_hierarchy[1].split("=", 1)[1]
-                scop_superfamily = scop_hierarchy[1].split("=", 1)[1]
-                scop_family = scop_hierarchy[1].split("=", 1)[1]
+                scop_superfamily = scop_hierarchy[2].split("=", 1)[1]
+                scop_family = scop_hierarchy[3].split("=", 1)[1]
+                scop_dm = scop_hierarchy[4].split("=", 1)[1]
+                scop_sp = scop_hierarchy[5].split("=", 1)[1]
+                scop_px = scop_hierarchy[6].split("=", 1)[1]
 
                 scop_dic["class:"] = scop_class
                 scop_dic["fold:"] = scop_fold
                 scop_dic["superfamily:"] = scop_superfamily
                 scop_dic["family:"] = scop_family
+                scop_dic["dm:"] = scop_dm
+                scop_dic["sp:"] = scop_sp
+                scop_dic["px:"] = scop_px
 
                 ## add an element to the scop_data dictionary
                 scop_data[pdb] = scop_dic
@@ -103,7 +110,12 @@ def generate_all_possible_protein_pairs(protein_ids):
     # pairs.append((protein1, protein2))
     # Generate all possible combinations of IDs
 
+    # Get all permutations of length 2 from protein_ids
+    perm = permutations(protein_ids, 2)
 
+    # Add the permutations to the pairs -list
+    for pair in list(perm):
+        pairs.append(pair)
 
     ########################
     ### END CODING HERE ####
