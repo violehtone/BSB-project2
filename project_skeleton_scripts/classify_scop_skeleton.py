@@ -40,9 +40,9 @@ def retrieve_scop_data(scop_file):
                 scop_dic["fold:"] = scop_fold
                 scop_dic["superfamily:"] = scop_superfamily
                 scop_dic["family:"] = scop_family
-                scop_dic["dm:"] = scop_dm
-                scop_dic["sp:"] = scop_sp
-                scop_dic["px:"] = scop_px
+                scop_dic["domain:"] = scop_dm
+                scop_dic["species:"] = scop_sp # similar
+                scop_dic["protein:"] = scop_px
 
                 ## add an element to the scop_data dictionary
                 scop_data[pdb] = scop_dic
@@ -67,7 +67,6 @@ def compute_similarity_score(prot1_scop, prot2_scop):
     # You need to decide whether you need this function for SCOP database.
     pass
 
-
     ########################
     ### END CODING HERE ####
     ########################
@@ -84,9 +83,13 @@ def check_similarity_for_protein_pair(prot1_scop, prot2_scop):
     ##########################
     ### START CODING HERE ####
     ##########################
-    pass
-    
-    
+    if (prot1_scop["superfamily"] == prot2_scop["superfamily"]):
+        return "similar"
+    elif (prot1_scop["family"] == prot2_scop["family"]):
+        return "ambiguous"
+    else:
+        return "different"
+
     ########################
     ### END CODING HERE ####
     ########################
@@ -132,15 +135,28 @@ def assign_homology(scop_dict, protein_ids_pdbs, pairs):
     :param pairs: list of all possible unique protein pairs.
     :return: dictionary with UniProt ID (key), similarity(different, ambiguous or similar).
     """
-    scop_homology = {}
+    scop_homology = {} ## {{:UniprotID, :similarity(i.e. similar}}
 
     ##########################
     ### START CODING HERE ####
     ##########################
     # You should remember to take care about the proteins that are not in the SCOP database.
+    for pair in pairs:
+        protein1_id = pair[0] ## uniprot id
+        protein2_id = pair[1] ## uniprot id
+        protein1_pdb = protein_ids_pdbs[protein1_id] #pdb
+        protein2_pdb = protein_ids_pdbs[protein2_id] #pdb
 
+        # find scop-data for proteins:
+        protein1_scop_data = scop_dict[protein1_pdb]
+        protein2_scop_data = scop_dict[protein2_pdb]
 
+        # find similarity for the protein pair
+        similarity = check_similarity_for_protein_pair(protein1_scop_data, protein2_scop_data)
 
+        # add uniprot id : similarity -pair into scop_homology dict
+        scop_homology[(protein1_id, protein2_id), similarity]
+    
     ########################
     ### END CODING HERE ####
     ########################
@@ -212,10 +228,24 @@ def main(uniprot_filename, output_filename, pdb_id_file, scop_file):
     ##########################
     ### START CODING HERE ####
     ##########################
-    pass
 
+    # fetch a dict of {Uniprot_id : PDB}
     uniprot_PDB_mapping = read_lookup_table(pdb_id_file)
-    retrieve_scop_data(uniprot_PDB_mapping)
+
+    # fetch a list of Uniprot ids (id, id, id)
+    uniprot_ids = read_protein_ids_file(uniprot_filename)
+
+    # retrieve scop data in dictionary {pdb: {family : "", ... "species" : ""}}
+    pdb_scop_data_dic = retrieve_scop_data(scop_file)
+
+    # Get all possible permutations of protein pairs
+    all_possible_pairs = generate_all_possible_protein_pairs(uniprot_ids)
+
+    # calculate scop homology
+    scop_homology = assign_homology(pdb_scop_data_dic, uniprot_PDB_mapping, all_possible_pairs)
+
+    # write the results
+    write_results(output_filename, scop_homology)
 
 
     #######################
