@@ -117,9 +117,15 @@ def generate_all_possible_protein_pairs(protein_ids):
     perm = permutations(protein_ids, 2)
     permList = list(perm)
 
-    # Add the permutations to the pairs -list
+    temp = []
     for pair in permList:
         pairs.append(pair)
+
+    for a, b in pairs:
+        if (a,b) not in temp and (b,a) not in temp:
+            temp.append((a,b))
+    
+    pairs = temp * 1 # copy temp to permList
 
     ########################
     ### END CODING HERE ####
