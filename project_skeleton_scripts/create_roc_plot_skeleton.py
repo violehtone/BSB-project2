@@ -83,7 +83,7 @@ def integrate(x, y):
         #########################
         ### START CODING HERE ###
         #########################
-        auc += (cur_x - last_x) * (cur_y - last_y)
+        auc += ((cur_x - last_x) * (cur_y - last_y))/2
         #########################
         ###  END CODING HERE  ###
         #########################
