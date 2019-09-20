@@ -126,23 +126,23 @@ def roc_plot(blast_evalues, benchmark_dict, png_filename):
             last_y_value = y[len(y)-1]
 
             if evalue != last_evalue:
-                if benchmark = 'different':
+                if benchmark == 'different':
                     ## false positive
                     x.append(last_x_value + 1)
                     y.append(last_y_value)
 
-                elif benchmark = 'similar':
+                elif benchmark == 'similar':
                     ## true positive
                     y.append(last_y_value + 1)
                     x.append(last_x_value)
 
             ## if e-value is the same ast last e-value
             else:
-                if benchmark = 'different':
+                if benchmark == 'different':
                     ## false positive
                     x[len(x)-1] = last_x_value + 1
 
-                elif benchmark = 'similar':
+                elif benchmark == 'similar':
                     ## true positive
                     y[len(y)-1] = last_y_value + 1
         elif:
