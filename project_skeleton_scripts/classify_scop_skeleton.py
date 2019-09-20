@@ -85,7 +85,7 @@ def check_similarity_for_protein_pair(prot1_scop, prot2_scop):
     ##########################
     if (prot1_scop["superfamily"] == prot2_scop["superfamily"]):
         return "similar"
-    elif (prot1_scop["family"] == prot2_scop["family"]):
+    elif (prot1_scop["fold"] == prot2_scop["fold"]):
         return "ambiguous"
     else:
         return "different"
