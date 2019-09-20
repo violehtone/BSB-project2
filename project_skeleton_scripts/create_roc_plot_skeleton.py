@@ -14,6 +14,7 @@ def parse_blast_results(filename):
     Parse every protein pair's e-value out of a BLAST results file.
     :param filename: input file with BLAST results.
     :return: dictionary with a tuple of two UniProt IDs (key), and the corresponding e-value from BLAST (value).
+            {(id, id) : e-value}
     """
 
     blast_results = {}
@@ -43,6 +44,7 @@ def parse_benchmark_results(filename):
     Parse every protein pair's classification out of the benchmark file.
     :param filename: input file with benchmark classifacations.
     :return: dictionary with a tuple of two UniProt IDs (key), and the corresponding call (value).
+            {(id, id) : "similarity"}
     """
 
     benchmark_results = {}
@@ -74,7 +76,6 @@ def integrate(x, y):
     :param y: a list of y-coordinates
     :return: a float with the surface area under the curve described by x and y
     """
-    
     auc = 0.
     last_x = x[0]
     last_y = y[0]
@@ -82,6 +83,7 @@ def integrate(x, y):
         #########################
         ### START CODING HERE ###
         #########################
+
 
         #########################
         ###  END CODING HERE  ###
@@ -119,6 +121,33 @@ def roc_plot(blast_evalues, benchmark_dict, png_filename):
         # Increase the respective value and add a new coordinate for every unique e-value
         # If the e-value is the same as the last one, only increase x or y of the last coordinate
         # Ignore entries in the benchmark_dict classified as "ambiguous" and decide how to handle blast NA results
+        if evalue != 'NA':
+            benchmark = benchmark_dict[protein_pair]
+            last_x_value = x[len(x)-1]
+            last_y_value = y[len(y)-1]
+
+            if evalue != last_evalue:
+                if benchmark = 'different':
+                    ## false positive
+                    x.append(last_x_value + 1)
+                    y.append(last_y_value)
+
+                elif benchmark = 'similar':
+                    ## true positive
+                    y.append(last_y_value + 1)
+                    x.append(last_x_value)
+
+            ## if e-value is the same ast last e-value
+            else:
+                if benchmark = 'different':
+                    ## false positive
+                    x[len(x)-1] = last_x_value + 1
+
+                elif benchmark = 'similar':
+                    ## true positive
+                    y[len(y)-1] = last_y_value + 1
+        elif:
+            print("e-value NA cannot be compared")
 
         #########################
         ###  END CODING HERE  ###
