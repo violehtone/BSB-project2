@@ -77,14 +77,13 @@ def integrate(x, y):
     :return: a float with the surface area under the curve described by x and y
     """
     auc = 0.
-    last_x = x[0]
-    last_y = y[0]
+    last_x = x[0] # the i-1 x-coordinate in the list
+    last_y = y[0] # the i-1 y-coordinate in the list
     for cur_x, cur_y in list(zip(x, y))[1:]:
         #########################
         ### START CODING HERE ###
         #########################
-
-
+        auc += (cur_x - last_x) * (cur_y - last_y)
         #########################
         ###  END CODING HERE  ###
         #########################
