@@ -121,28 +121,32 @@ def roc_plot(blast_evalues, benchmark_dict, png_filename):
         # If the e-value is the same as the last one, only increase x or y of the last coordinate
         # Ignore entries in the benchmark_dict classified as "ambiguous" and decide how to handle blast NA results
         if evalue != 'NA':
-            benchmark = benchmark_dict[protein_pair]
-            last_x_value = x[len(x)-1]
-            last_y_value = y[len(y)-1]
+            try:
+                benchmark = benchmark_dict[protein_pair]
 
-            if evalue != last_evalue:
-                if (benchmark == 'different'):
-                    ## false positive
-                    x.append(last_x_value + 1)
-                    y.append(last_y_value)
-                elif (benchmark == 'similar'):
-                    ## true positive
-                    y.append(last_y_value + 1)
-                    x.append(last_x_value)
+                last_x_value = x[len(x)-1]
+                last_y_value = y[len(y)-1]
 
-            ## if e-value is the same ast last e-value
-            else:
-                if (benchmark == 'different'):
-                    ## false positive
-                    x[len(x)-1] = last_x_value + 1
-                elif (benchmark == 'similar'):
-                    ## true positive
-                    y[len(y)-1] = last_y_value + 1
+                if evalue != last_evalue:
+                    if (benchmark == 'different'):
+                        ## false positive
+                        x.append(last_x_value + 1)
+                        y.append(last_y_value)
+                    elif (benchmark == 'similar'):
+                        ## true positive
+                        y.append(last_y_value + 1)
+                        x.append(last_x_value)
+
+                ## if e-value is the same ast last e-value
+                else:
+                    if (benchmark == 'different'):
+                        ## false positive
+                        x[len(x)-1] = last_x_value + 1
+                    elif (benchmark == 'similar'):
+                        ## true positive
+                        y[len(y)-1] = last_y_value + 1
+            except KeyError:
+                print("Protein pair not found from SCOP data", protein_pair)
         else:
             print("e-value NA cannot be compared")
 
