@@ -145,7 +145,7 @@ def plot_evalue_distribution(blast_dict, png_filename, evalue=100000):
     ##########################
 
 
-def main(uniprot_id_file, query_folder, db, psiblast, output_filename, output_png):
+def main(uniprot_id_file, query_folder, db, psiblast, output_filename, output_png, evalue):
     # The blast_dict dictionary will be used to store protein pair and the corresponding e-value.
     # Keys for blast_dict are the combination of query and subject/hit, e.g.:
     # key             = (query, subject)
@@ -174,7 +174,7 @@ def main(uniprot_id_file, query_folder, db, psiblast, output_filename, output_pn
 
     uniprot_ids.close()
     write_output(uniprot_id_list, output_filename, blast_dict)
-    plot_evalue_distribution(blast_dict, output_png)
+    plot_evalue_distribution(blast_dict, output_png, float(evalue))
 
 
 if __name__ == "__main__":
@@ -185,6 +185,7 @@ if __name__ == "__main__":
     parser.add_argument("-o", "--output_file", help="output file", required=True)
     parser.add_argument("-opng", "--output_png", help="output png file", default="DistributionEValue.png", required=False)
     parser.add_argument("-psi", "--psiblast", dest="psiblast", action="store_true", help="If flagged, run PSI-BLAST instead of BLASTP")
+    parser.add_argument("-evalue", "--evalue", required=False, help="Add e-value threshold")
 
     args = parser.parse_args()
 
@@ -195,5 +196,6 @@ if __name__ == "__main__":
     psiblast = args.psiblast # True or False
     output_filename = args.output_file
     output_png = args.output_png
+    evalue = args.evalue
 
-    main(uniprot_id_file, query_folder, db, psiblast, output_filename, output_png)
+    main(uniprot_id_file, query_folder, db, psiblast, output_filename, output_png, evalue)
