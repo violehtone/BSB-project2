@@ -108,6 +108,9 @@ def roc_plot(blast_evalues, benchmark_dict, png_filename):
     last_evalue = -1
     evalues = [(v, k) for k, v in blast_evalues.items()] # List of tuples consisting of (evalue, protein_pair)
     sorted_evalues = sorted(evalues)
+
+    list_of_different_pairs = []
+
     for evalue, protein_pair in sorted_evalues:
 
         #########################
@@ -120,6 +123,7 @@ def roc_plot(blast_evalues, benchmark_dict, png_filename):
         # Increase the respective value and add a new coordinate for every unique e-value
         # If the e-value is the same as the last one, only increase x or y of the last coordinate
         # Ignore entries in the benchmark_dict classified as "ambiguous" and decide how to handle blast NA results
+
         if evalue != 'NA':
             try:
                 benchmark = benchmark_dict[protein_pair]
@@ -132,21 +136,31 @@ def roc_plot(blast_evalues, benchmark_dict, png_filename):
                         ## false positive
                         x.append(last_x_value + 1)
                         y.append(last_y_value)
+
+                        ## Refactor this - e-value of 1000000.0 seems to equal 'NA'
+                        if(evalue < 1000000.0):
+                            list_of_different_pairs.append((protein_pair, evalue))
+
                     elif (benchmark == 'similar'):
                         ## true positive
                         y.append(last_y_value + 1)
                         x.append(last_x_value)
 
-                ## if e-value is the same ast last e-value
+                ## if e-value is the same as last e-value
                 else:
                     if (benchmark == 'different'):
                         ## false positive
                         x[len(x)-1] = last_x_value + 1
+
+                        ## Refactor this - e-value of 1000000.0 seems to equal 'NA'
+                        if(evalue < 1000000.0):
+                            list_of_different_pairs.append((protein_pair, evalue))
+
                     elif (benchmark == 'similar'):
                         ## true positive
                         y[len(y)-1] = last_y_value + 1
             except KeyError:
-                print("Protein pair not found from SCOP data", protein_pair)
+                pass
         else:
             print("e-value NA cannot be compared")
 
@@ -154,6 +168,8 @@ def roc_plot(blast_evalues, benchmark_dict, png_filename):
         ###  END CODING HERE  ###
         #########################
         last_evalue = evalue
+    
+    print("Lowest different protein pair and e-value: ", list_of_different_pairs[0])
 
     # In order to get the rates for every coordinate we divide by the total number (last entry)
     x = numpy.array(x) / float(x[-1])
