@@ -12,13 +12,14 @@ matplotlib.use('AGG')
 import pylab
 
 
-def blast(db, query, query_folder="./queries/", psiblast=False):
+def blast(db, query, eValue, query_folder="./queries/", psiblast=False):
     """
     This function executes blast or psi-blast for the given query and db.
     :param db: database filename
     :param query: query filename
     :param query_folder: query folder name
     :param psiblast: True if PSI-BLAST should be used; False for normal BLAST
+    :param e-value: Given e-value threshold
     :return: result from blast run
 
     """
@@ -31,7 +32,7 @@ def blast(db, query, query_folder="./queries/", psiblast=False):
         # Note that it is is easier to parse the output if it is in tabular format.
         # For that use can use the option -outfmt '6 qacc sacc evalue'. (see https://www.ncbi.nlm.nih.gov/books/NBK279682/ )
         # To avoid the warning about composition based statistics, disable them with -comp_based_stats 0
-        cmd = "blastp -query " + query_folder + "/" + query + ".fasta" + " -db " + db + " -outfmt '6 qacc sacc evalue' -comp_based_stats 0"
+        cmd = "blastp -query " + query_folder + "/" + query + ".fasta" + " -db " + db + " -outfmt '6 qacc sacc evalue' -comp_based_stats 0 -evalue " + eValue
         ##########################
         ###  END CODING HERE  ####
         ##########################
@@ -42,7 +43,7 @@ def blast(db, query, query_folder="./queries/", psiblast=False):
         ##########################
         # Define the variable 'cmd' as a string with the command for PSI-BLASTing 'query' against
         # the specified database 'db'.
-        cmd = "psiblast -query " + query_folder + "/" + query + ".fasta" " -db " + db + " -num_iterations 3  -outfmt '6 qacc sacc evalue' -comp_based_stats 0"
+        cmd = "psiblast -query " + query_folder + "/" + query + ".fasta" " -db " + db + " -num_iterations 3  -outfmt '6 qacc sacc evalue' -comp_based_stats 0 -evalue " + eValue
         ##########################
         ###  END CODING HERE  ####
         ##########################
@@ -161,7 +162,7 @@ def main(uniprot_id_file, query_folder, db, psiblast, output_filename, output_pn
         ### START CODING HERE ####
         ##########################
         # Run (PSI-)BLAST for all query proteins.
-        result = blast(db, query, query_folder, psiblast)
+        result = blast(db, query, evalue, query_folder, psiblast)
 
         # Store all the uniprot IDs in the uniprot_ids.
         uniprot_id_list.append(query)

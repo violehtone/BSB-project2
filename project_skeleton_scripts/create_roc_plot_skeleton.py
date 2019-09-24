@@ -83,7 +83,7 @@ def integrate(x, y):
         #########################
         ### START CODING HERE ###
         #########################
-        auc += ((cur_x - last_x) * (cur_y - last_y))/2
+        auc += ((cur_x - last_x) * cur_y)
         #########################
         ###  END CODING HERE  ###
         #########################
@@ -104,18 +104,15 @@ def roc_plot(blast_evalues, benchmark_dict, png_filename):
 
     x = [0] # array of the ROC plot's x-coordinates: False Positive Rate = FP/(FP+TN)
     y = [0] # array of the ROC plot's y-coordinates: True  Positive Rate = TP/(TP+FN)
-    
+            # If the e-value is the same as the last one, only increase x or y of the last coordinate
     last_evalue = -1
     evalues = [(v, k) for k, v in blast_evalues.items()] # List of tuples consisting of (evalue, protein_pair)
     sorted_evalues = sorted(evalues)
 
-    list_of_different_pairs = []
+    #initialize variables (i.e. fn = false negative)
+    variable_map = {"FN":0, "TN":0, "FP":0, "TP":0}
 
     for evalue, protein_pair in sorted_evalues:
-
-        #########################
-        ### START CODING HERE ###
-        #########################
         # Iterate through the protein pairs, in order of ascending e-value
         # Determine whether it is 
         #    different -> actual negative, thus a false positive (x) 
@@ -123,55 +120,42 @@ def roc_plot(blast_evalues, benchmark_dict, png_filename):
         # Increase the respective value and add a new coordinate for every unique e-value
         # If the e-value is the same as the last one, only increase x or y of the last coordinate
         # Ignore entries in the benchmark_dict classified as "ambiguous" and decide how to handle blast NA results
+        try:
+            benchmark = benchmark_dict[protein_pair]
+            if evalue != last_evalue:
 
-        if evalue != 'NA':
-            try:
-                benchmark = benchmark_dict[protein_pair]
+                calculate_new_variable_values(evalue, benchmark, variable_map)
+                false_pos_rate = FPR(variable_map["FP"], variable_map["TN"])
+                true_pos_rate = TPR(variable_map["TP"], variable_map["FN"])
 
-                last_x_value = x[len(x)-1]
-                last_y_value = y[len(y)-1]
+                if(benchmark == 'different'):
+                    x.append(false_pos_rate)
+                    y.append(y[len(y)-1])
+                if(benchmark == 'similar'):
+                    x.append(x[len(x)-1])
+                    y.append(false_pos_rate)
 
-                if evalue != last_evalue:
-                    if (benchmark == 'different'):
-                        ## false positive
-                        x.append(last_x_value + 1)
-                        y.append(last_y_value)
+            ## if e-value is the same as last e-value
+            else:
+                calculate_new_variable_values(evalue, benchmark, variable_map)
+                false_pos_rate = FPR(variable_map["FP"], variable_map["TN"])
+                true_pos_rate = TPR(variable_map["TP"], variable_map["FN"])
 
-                        ## Refactor this - e-value of 1000000.0 seems to equal 'NA'
-                        if(evalue < 1000000.0):
-                            list_of_different_pairs.append((protein_pair, evalue))
+                ##only increase either one
+                if(benchmark == 'different'):
+                    x[len(x)-1] == false_pos_rate
+                if(benchmark == 'similar'):
+                    y[len(y)-1] == true_pos_rate
 
-                    elif (benchmark == 'similar'):
-                        ## true positive
-                        y.append(last_y_value + 1)
-                        x.append(last_x_value)
+        except KeyError:
+            pass
 
-                ## if e-value is the same as last e-value
-                else:
-                    if (benchmark == 'different'):
-                        ## false positive
-                        x[len(x)-1] = last_x_value + 1
-
-                        ## Refactor this - e-value of 1000000.0 seems to equal 'NA'
-                        if(evalue < 1000000.0):
-                            list_of_different_pairs.append((protein_pair, evalue))
-
-                    elif (benchmark == 'similar'):
-                        ## true positive
-                        y[len(y)-1] = last_y_value + 1
-            except KeyError:
-                pass
-        else:
-            print("e-value NA cannot be compared")
-
-        #########################
-        ###  END CODING HERE  ###
-        #########################
         last_evalue = evalue
-    
-    print("Lowest different protein pair and e-value: ", list_of_different_pairs[0])
 
     # In order to get the rates for every coordinate we divide by the total number (last entry)
+    print(x)
+    print(y)
+    
     x = numpy.array(x) / float(x[-1])
     y = numpy.array(y) / float(y[-1])
 
@@ -190,6 +174,34 @@ def roc_plot(blast_evalues, benchmark_dict, png_filename):
     with open(png_filename.split('.')[0] + '_xy.tsv','w') as f:
         for a,b in zip(x,y):
             f.write(str(a) + '\t' + str(b) + '\n')
+
+
+def FPR(fp, tn):
+    if fp == tn == 0:
+        return 0
+    return fp / (fp+tn)
+
+
+def TPR(tp, fn):
+    if tp == fn == 0:
+        return 0
+
+    return tp / (tp + fn)
+
+
+def calculate_new_variable_values(evalue, benchmark, variable_map):
+    #FALSE NEGATIVE
+    if (evalue >= 1000000 and benchmark == 'similar'):
+        variable_map["FN"] += 1
+    #TRUE NEGATIVE
+    elif (evalue >= 1000000 and benchmark == 'different'):
+        variable_map["TN"] += 1
+    #FALSE POSITIVE
+    elif benchmark == 'different':
+        variable_map["FP"] += 1
+    #TRUE POSITIVE
+    elif benchmark == 'similar':
+        variable_map["TP"] += 1
 
 
 def main(blast_results_file, benchmark_results_file, png_file):
