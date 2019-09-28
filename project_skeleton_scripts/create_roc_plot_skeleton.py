@@ -122,18 +122,14 @@ def roc_plot(blast_evalues, benchmark_dict, png_filename):
         # Ignore entries in the benchmark_dict classified as "ambiguous" and decide how to handle blast NA results
         try:
             benchmark = benchmark_dict[protein_pair]
-            if evalue != last_evalue:
+            if (evalue != last_evalue):
 
                 calculate_new_variable_values(evalue, benchmark, variable_map)
                 false_pos_rate = FPR(variable_map["FP"], variable_map["TN"])
                 true_pos_rate = TPR(variable_map["TP"], variable_map["FN"])
 
-                if(benchmark == 'different'):
-                    x.append(false_pos_rate)
-                    y.append(y[len(y)-1])
-                if(benchmark == 'similar'):
-                    x.append(x[len(x)-1])
-                    y.append(false_pos_rate)
+                x.append(false_pos_rate)
+                y.append(true_pos_rate)
 
             ## if e-value is the same as last e-value
             else:
@@ -141,11 +137,8 @@ def roc_plot(blast_evalues, benchmark_dict, png_filename):
                 false_pos_rate = FPR(variable_map["FP"], variable_map["TN"])
                 true_pos_rate = TPR(variable_map["TP"], variable_map["FN"])
 
-                ##only increase either one
-                if(benchmark == 'different'):
-                    x[len(x)-1] == false_pos_rate
-                if(benchmark == 'similar'):
-                    y[len(y)-1] == true_pos_rate
+                x[len(x)-1] = false_pos_rate
+                y[len(y)-1] = true_pos_rate
 
         except KeyError:
             pass
@@ -190,17 +183,23 @@ def TPR(tp, fn):
 
 
 def calculate_new_variable_values(evalue, benchmark, variable_map):
+    homolog = True
+
+    ## Make 'NA's evaluate to non-homologs
+    if evalue >= 1000000 or evalue == 'NA':
+        homolog = False
+
     #FALSE NEGATIVE
-    if (evalue >= 1000000 and benchmark == 'similar'):
+    if (not homolog and benchmark == 'similar'):
         variable_map["FN"] += 1
     #TRUE NEGATIVE
-    elif (evalue >= 1000000 and benchmark == 'different'):
+    elif (not homolog and benchmark == 'different'):
         variable_map["TN"] += 1
     #FALSE POSITIVE
-    elif benchmark == 'different':
+    elif (homolog and benchmark == 'different'):
         variable_map["FP"] += 1
     #TRUE POSITIVE
-    elif benchmark == 'similar':
+    elif (homolog and benchmark == 'similar'):
         variable_map["TP"] += 1
 
 
