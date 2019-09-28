@@ -110,7 +110,7 @@ def roc_plot(blast_evalues, benchmark_dict, png_filename):
     sorted_evalues = sorted(evalues)
 
     #initialize variables (i.e. fn = false negative)
-    variable_map = {"FN":0, "TN":0, "FP":0, "TP":0}
+    variable_map = {"FN":0.0, "TN":0.0, "FP":0.0, "TP":0.0}
 
     for evalue, protein_pair in sorted_evalues:
         # Iterate through the protein pairs, in order of ascending e-value
@@ -121,7 +121,9 @@ def roc_plot(blast_evalues, benchmark_dict, png_filename):
         # If the e-value is the same as the last one, only increase x or y of the last coordinate
         # Ignore entries in the benchmark_dict classified as "ambiguous" and decide how to handle blast NA results
         try:
+            ## Benchmark is either "different", "ambiguous", or "similar"
             benchmark = benchmark_dict[protein_pair]
+
             if (evalue != last_evalue):
 
                 calculate_new_variable_values(evalue, benchmark, variable_map)
@@ -141,6 +143,7 @@ def roc_plot(blast_evalues, benchmark_dict, png_filename):
                 y[len(y)-1] = true_pos_rate
 
         except KeyError:
+            ## If benchmark was not found, continue to next e-value
             pass
 
         last_evalue = evalue

@@ -32,7 +32,10 @@ def blast(db, query, eValue, query_folder="./queries/", psiblast=False):
         # Note that it is is easier to parse the output if it is in tabular format.
         # For that use can use the option -outfmt '6 qacc sacc evalue'. (see https://www.ncbi.nlm.nih.gov/books/NBK279682/ )
         # To avoid the warning about composition based statistics, disable them with -comp_based_stats 0
-        cmd = "blastp -query " + query_folder + "/" + query + ".fasta" + " -db " + db + " -outfmt '6 qacc sacc evalue' -comp_based_stats 0 -evalue " + eValue
+        cmd = "blastp -query " + query_folder + "/" + query + ".fasta" + " -db " + db + " -outfmt '6 qacc sacc evalue' -comp_based_stats 0"
+        if (evalue is not None):
+            cmd += (" -evalue " + str(eValue))
+
         ##########################
         ###  END CODING HERE  ####
         ##########################
@@ -43,7 +46,9 @@ def blast(db, query, eValue, query_folder="./queries/", psiblast=False):
         ##########################
         # Define the variable 'cmd' as a string with the command for PSI-BLASTing 'query' against
         # the specified database 'db'.
-        cmd = "psiblast -query " + query_folder + "/" + query + ".fasta" " -db " + db + " -num_iterations 3  -outfmt '6 qacc sacc evalue' -comp_based_stats 0 -evalue " + eValue
+        cmd = "psiblast -query " + query_folder + "/" + query + ".fasta" " -db " + db + " -num_iterations 3  -outfmt '6 qacc sacc evalue' -comp_based_stats 0"
+        if (evalue is not None):
+            cmd += (" -evalue " + str(eValue))
         ##########################
         ###  END CODING HERE  ####
         ##########################
@@ -85,6 +90,11 @@ def parse_blast_result(blast_result, blast_dict):
                 if not line.endswith('CONVERGED!'):
                     print ("\tCould not parse (psi-)blast response line:\n\t"+ line)
     
+    ##Remove protein pairs from blast_dict where 2 same proteins are compared (e-value = 0)
+    for key, value in blast_dict.copy().items():
+        if value == 0:
+            del blast_dict[key]
+
     return blast_dict
 
 
@@ -118,6 +128,9 @@ def plot_evalue_distribution(blast_dict, png_filename, evalue=100000):
     :param evalue: threshold for e-value. If no threshold specified, arbitrary 100000 will be used.
 
     """
+    if evalue is None:
+        evalue = 100000
+
     sorted_e_val = sorted(blast_dict.values())
     nonzero_indices = numpy.nonzero(sorted_e_val)[0]
     pseudo_count = sorted_e_val[nonzero_indices[0]] / 1000.0
@@ -175,7 +188,7 @@ def main(uniprot_id_file, query_folder, db, psiblast, output_filename, output_pn
 
     uniprot_ids.close()
     write_output(uniprot_id_list, output_filename, blast_dict)
-    plot_evalue_distribution(blast_dict, output_png, float(evalue))
+    plot_evalue_distribution(blast_dict, output_png, evalue)
 
 
 if __name__ == "__main__":
