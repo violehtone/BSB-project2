@@ -130,6 +130,8 @@ def plot_evalue_distribution(blast_dict, png_filename, evalue=100000):
     """
     if evalue is None:
         evalue = 100000
+    else:
+        evalue = float(evalue)
 
     sorted_e_val = sorted(blast_dict.values())
     nonzero_indices = numpy.nonzero(sorted_e_val)[0]

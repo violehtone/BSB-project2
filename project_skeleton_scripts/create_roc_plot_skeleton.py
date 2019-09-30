@@ -108,10 +108,7 @@ def roc_plot(blast_evalues, benchmark_dict, png_filename):
     last_evalue = -1
     evalues = [(v, k) for k, v in blast_evalues.items()] # List of tuples consisting of (evalue, protein_pair)
     sorted_evalues = sorted(evalues)
-
-    #initialize variables (i.e. fn = false negative)
-    variable_map = {"FN":0.0, "TN":0.0, "FP":0.0, "TP":0.0}
-
+    
     for evalue, protein_pair in sorted_evalues:
         # Iterate through the protein pairs, in order of ascending e-value
         # Determine whether it is 
@@ -124,23 +121,23 @@ def roc_plot(blast_evalues, benchmark_dict, png_filename):
             ## Benchmark is either "different", "ambiguous", or "similar"
             benchmark = benchmark_dict[protein_pair]
 
+            ## if e-value is a new e-value (different from the previous e-value)
             if (evalue != last_evalue):
 
-                calculate_new_variable_values(evalue, benchmark, variable_map)
-                false_pos_rate = FPR(variable_map["FP"], variable_map["TN"])
-                true_pos_rate = TPR(variable_map["TP"], variable_map["FN"])
+                if(isHomolog(evalue) and benchmark == 'similar'):
+                    y.append(y[-1] + 1)
+                    x.append(x[-1])
 
-                x.append(false_pos_rate)
-                y.append(true_pos_rate)
+                elif(isHomolog(evalue) and benchmark == 'different'):
+                    x.append(x[-1] + 1)
+                    y.append(y[-1])
 
             ## if e-value is the same as last e-value
             else:
-                calculate_new_variable_values(evalue, benchmark, variable_map)
-                false_pos_rate = FPR(variable_map["FP"], variable_map["TN"])
-                true_pos_rate = TPR(variable_map["TP"], variable_map["FN"])
-
-                x[len(x)-1] = false_pos_rate
-                y[len(y)-1] = true_pos_rate
+                if(isHomolog(evalue) and benchmark == 'similar'):
+                    y[-1] += 1
+                elif(isHomolog(evalue) and benchmark == 'different'):
+                    x[-1] += 1
 
         except KeyError:
             ## If benchmark was not found, continue to next e-value
@@ -171,40 +168,11 @@ def roc_plot(blast_evalues, benchmark_dict, png_filename):
         for a,b in zip(x,y):
             f.write(str(a) + '\t' + str(b) + '\n')
 
-
-def FPR(fp, tn):
-    if fp == tn == 0:
-        return 0
-    return fp / (fp+tn)
-
-
-def TPR(tp, fn):
-    if tp == fn == 0:
-        return 0
-
-    return tp / (tp + fn)
-
-
-def calculate_new_variable_values(evalue, benchmark, variable_map):
-    homolog = True
-
-    ## Make 'NA's evaluate to non-homologs
+def isHomolog(evalue):
     if evalue >= 1000000 or evalue == 'NA':
-        homolog = False
-
-    #FALSE NEGATIVE
-    if (not homolog and benchmark == 'similar'):
-        variable_map["FN"] += 1
-    #TRUE NEGATIVE
-    elif (not homolog and benchmark == 'different'):
-        variable_map["TN"] += 1
-    #FALSE POSITIVE
-    elif (homolog and benchmark == 'different'):
-        variable_map["FP"] += 1
-    #TRUE POSITIVE
-    elif (homolog and benchmark == 'similar'):
-        variable_map["TP"] += 1
-
+        return False
+    else:
+        return True
 
 def main(blast_results_file, benchmark_results_file, png_file):
     # Parse the input files and retrieve every protein pair's e-value and benchmark classification.
