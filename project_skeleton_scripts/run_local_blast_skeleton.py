@@ -23,35 +23,16 @@ def blast(db, query, eValue, query_folder="./queries/", psiblast=False):
     :return: result from blast run
 
     """
-    if psiblast:
-        ##########################
-        ### START CODING HERE ####
-        ##########################
-        # Define the variable 'cmd' as a string with the command for BLASTing 'query' against
-        # the specified database 'db'.
-        # Note that it is is easier to parse the output if it is in tabular format.
-        # For that use can use the option -outfmt '6 qacc sacc evalue'. (see https://www.ncbi.nlm.nih.gov/books/NBK279682/ )
-        # To avoid the warning about composition based statistics, disable them with -comp_based_stats 0
+    if not psiblast:
+        # Shell command for blast
         cmd = "blastp -query " + query_folder + "/" + query + ".fasta" + " -db " + db + " -outfmt '6 qacc sacc evalue' -comp_based_stats 0"
         if (evalue is not None):
             cmd += (" -evalue " + str(eValue))
-
-        ##########################
-        ###  END CODING HERE  ####
-        ##########################
-
     else:
-        ##########################
-        ### START CODING HERE ####
-        ##########################
-        # Define the variable 'cmd' as a string with the command for PSI-BLASTing 'query' against
-        # the specified database 'db'.
+        # Shell command for psiblast
         cmd = "psiblast -query " + query_folder + "/" + query + ".fasta" " -db " + db + " -num_iterations 3  -outfmt '6 qacc sacc evalue' -comp_based_stats 0"
         if (evalue is not None):
             cmd += (" -evalue " + str(eValue))
-        ##########################
-        ###  END CODING HERE  ####
-        ##########################
 
     # Running shell command in python script. See https://docs.python.org/2/library/subprocess.html#popen-constructor
     p = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
@@ -75,17 +56,11 @@ def parse_blast_result(blast_result, blast_dict):
                 query = splitted_line[0].split("|")[1]
                 subject = splitted_line[1].split("|")[1]
 
-                ##########################
-                ### START CODING HERE ####
-                ##########################
                 # Parse the e-score corresponding to this line's (query, subject) pair and store it in blast_dict.
                 e_value = float(splitted_line[len(splitted_line) - 1])
                 key = (query, subject)
                 blast_dict[key] = e_value
 
-                ##########################
-                ###  END CODING HERE  ####
-                ##########################
             except IndexError:
                 if not line.endswith('CONVERGED!'):
                     print ("\tCould not parse (psi-)blast response line:\n\t"+ line)
@@ -141,12 +116,7 @@ def plot_evalue_distribution(blast_dict, png_filename, evalue=100000):
     pylab.ylabel("Frequency")
     pylab.savefig(png_filename)
 
-    ##########################
-    ### START CODING HERE ####
-    ##########################
     # Calculate the number of e-values lower than threshold.
-    # You will need to figure out how to pass evalue to this function.
-
     e_values_lower_than_threshold = 0
 
     for k, v in blast_dict.items():
@@ -154,11 +124,9 @@ def plot_evalue_distribution(blast_dict, png_filename, evalue=100000):
             print(k, v)
             e_values_lower_than_threshold += 1
     
+    # Log the values of e-values lower than threshold
     print("### INFO: E-values lower than treshold: ", e_values_lower_than_threshold)
     pass
-    ##########################
-    ###  END CODING HERE  ####
-    ##########################
 
 
 def main(uniprot_id_file, query_folder, db, psiblast, output_filename, output_png, evalue):
@@ -173,9 +141,6 @@ def main(uniprot_id_file, query_folder, db, psiblast, output_filename, output_pn
     uniprot_ids = open(uniprot_id_file)
     for line in uniprot_ids:
         query = line.strip()
-        ##########################
-        ### START CODING HERE ####
-        ##########################
         # Run (PSI-)BLAST for all query proteins.
         result = blast(db, query, evalue, query_folder, psiblast)
 
@@ -184,9 +149,6 @@ def main(uniprot_id_file, query_folder, db, psiblast, output_filename, output_pn
 
         # Parse and store the blast result in the blast_dict.
         parse_blast_result(result, blast_dict)
-        ##########################
-        ###  END CODING HERE  ####
-        ##########################
 
     uniprot_ids.close()
     write_output(uniprot_id_list, output_filename, blast_dict)

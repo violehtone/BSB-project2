@@ -13,9 +13,6 @@ def retrieve_scop_data(scop_file):
     """
     scop_data = {}
 
-    ##########################
-    ### START CODING HERE ####
-    ##########################
     # You can parse SCOP data in various ways. E.g. you can use dictionary of dictionaries
     # {proteinID: {"class": class, "fold": fold, "superfamily": superfamily, 'family': family}}
     with open(scop_file) as sf:
@@ -47,30 +44,7 @@ def retrieve_scop_data(scop_file):
                 ## add an element to the scop_data dictionary
                 scop_data[pdb] = scop_dic
     
-    ########################
-    ### END CODING HERE ####
-    ########################
-
     return scop_data
-
-
-def compute_similarity_score(prot1_scop, prot2_scop):
-    """
-    Computes the score for two proteins on the basis of the data from SCOP database.
-    :param prot1_scop: data for protein 1 from SCOP database.
-    :param prot2_scop: data for protein 2 from SCOP database.
-    :return: similarity score (float)
-    """
-    ##########################
-    ### START CODING HERE ####
-    ##########################
-    # You need to decide whether you need this function for SCOP database.
-    pass
-
-    ########################
-    ### END CODING HERE ####
-    ########################
-
 
 def check_similarity_for_protein_pair(prot1_scop, prot2_scop):
     """
@@ -80,24 +54,12 @@ def check_similarity_for_protein_pair(prot1_scop, prot2_scop):
     :param pair: a tuple with the UniProt IDs of the two proteins to compare.
     :return: "different", "similar" or "ambiguous".
     """
-    ##########################
-    ### START CODING HERE ####
-    ##########################
     if (prot1_scop["superfamily"] == prot2_scop["superfamily"]):
         return "similar"
     elif (prot1_scop["fold"] == prot2_scop["fold"]):
         return "ambiguous"
     else:
         return "different"
-
-    ########################
-    ### END CODING HERE ####
-    ########################
-
-# If you will use the numeric score for SCOP (similar to GO), you may want to use check_similarity_for_protein_pair
-# with other arguments. See the example below.
-# def check_similarity_for_protein_pair(score, threshold):
-#    pass
 
 def generate_all_possible_protein_pairs(protein_ids):
     """
@@ -106,13 +68,7 @@ def generate_all_possible_protein_pairs(protein_ids):
     :return: list of possible unique protein pairs.
     """
     pairs = []
-    ##########################
-    ### START CODING HERE ####
-    ##########################
-    # You can add a pair of proteins to the list using the following code:
-    # pairs.append((protein1, protein2))
     # Generate all possible combinations of IDs
-
     # Get all permutations of length 2 from protein_ids
     perm = permutations(protein_ids, 2)
     permList = list(perm)
@@ -127,9 +83,6 @@ def generate_all_possible_protein_pairs(protein_ids):
     
     pairs = temp * 1 # copy temp to permList
 
-    ########################
-    ### END CODING HERE ####
-    ########################
     return pairs
 
 
@@ -144,9 +97,6 @@ def assign_homology(scop_dict, protein_ids_pdbs, pairs):
     """
     scop_homology = {} ## {{:UniprotID, :similarity(i.e. similar}}
 
-    ##########################
-    ### START CODING HERE ####
-    ##########################
     # You should remember to take care about the proteins that are not in the SCOP database.
     for pair in pairs:
         protein1_id = pair[0] ## uniprot id
@@ -168,9 +118,6 @@ def assign_homology(scop_dict, protein_ids_pdbs, pairs):
         except KeyError:
             print("Protein pair not found from SCOP data [%s, %s]", protein1_pdb, protein2_pdb)
 
-    ########################
-    ### END CODING HERE ####
-    ########################
     return scop_homology
 
 
@@ -191,9 +138,6 @@ def read_protein_ids_file(filename):
     :param filename:
     :return: list of UniProt IDs in the input file.
     """
-    ##########################
-    ### START CODING HERE ####
-    ##########################
     uniprot_id_list = []
 
     uniprot_ids = open(filename)
@@ -205,11 +149,6 @@ def read_protein_ids_file(filename):
 
     return uniprot_id_list
 
-    #######################
-    ### END CODING HERE ###
-    #######################
-
-
 
 def read_lookup_table(filename):
     """
@@ -217,9 +156,6 @@ def read_lookup_table(filename):
     :param filename: file with the mapping between Uniprot ids and PDB ids.
     :return: dictionary with UniprotID as key and PDB ID as a value.
     """
-    ##########################
-    ### START CODING HERE ####
-    ##########################
     result_dict = {}
 
     with open(filename) as csv_file:
@@ -230,21 +166,8 @@ def read_lookup_table(filename):
             result_dict[uniprotId] = PDB_ID
     
     return result_dict
-    #######################
-    ### END CODING HERE ###
-    #######################
-
-
 
 def main(uniprot_filename, output_filename, pdb_id_file, scop_file):
-    ##########################
-    ### START CODING HERE ####
-    ##########################
-
-    ## Uniprot id i.e. P16099 / Q92547..
-    ## PDB id i.e. 2D5Z, 1FSL, 1LH3..
-    ## SCOP-ID i.e. 15225, 15230..
-
     # fetch a dict of {Uniprot_id : PDB}
     uniprot_PDB_mapping = read_lookup_table(pdb_id_file)
 
@@ -262,10 +185,6 @@ def main(uniprot_filename, output_filename, pdb_id_file, scop_file):
 
     # write the results
     write_results(output_filename, scop_homology)
-
-    #######################
-    ### END CODING HERE ###
-    #######################
 
 
 if __name__ == "__main__":

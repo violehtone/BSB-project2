@@ -14,15 +14,9 @@ def fetch_one_fasta(uniprot_id):
     :param uniProtID: id of the protein to fetch in uniprot database.
     :return: sequence data in fasta format.
     """
-    ##########################
-    ### START CODING HERE ####
-    ##########################
     # Define the variable 'url' as a string with the URL to the Fasta formatted sequence of the uniProtID
     # in the uniprot website (www.uniprot.org).
     url = "https://uniprot.org/uniprot/" + str(uniprot_id) + ".fasta"
-    ##########################
-    ###  END CODING HERE  ####
-    ##########################
 
     fh = urllib.request.urlopen(url)
     result = fh.read().decode("utf8")
@@ -56,9 +50,7 @@ def fetch_all_sequences(query_folder, uniprot_filename, database_filename):
 
     for line in uniprot_file:
         uniprot_id = line.strip()
-        ##########################
-        ### START CODING HERE ####
-        ##########################
+
         # Fetch the fasta formatted sequence for each uniProtID.
         protein_fasta = fetch_one_fasta(uniprot_id)
 
@@ -70,10 +62,6 @@ def fetch_all_sequences(query_folder, uniprot_filename, database_filename):
         # as (PSI-)BLAST queries later on.
         database_file.write(protein_fasta)
         database_file.write("\n")
-
-        ##########################
-        ###  END CODING HERE  ####
-        ##########################
 
     print("Processing finished.")
     uniprot_file.close()
