@@ -83,7 +83,7 @@ def integrate(x, y):
         auc += ((cur_x - last_x) * cur_y)
         last_x = cur_x
         last_y = cur_y
-        
+
     return auc
 
 
@@ -103,6 +103,8 @@ def roc_plot(blast_evalues, benchmark_dict, png_filename):
     last_evalue = -1
     evalues = [(v, k) for k, v in blast_evalues.items()] # List of tuples consisting of (evalue, protein_pair)
     sorted_evalues = sorted(evalues)
+
+    lowest_e_value_being_different = []
     
     for evalue, protein_pair in sorted_evalues:
         # Iterate through the protein pairs, in order of ascending e-value
@@ -126,6 +128,8 @@ def roc_plot(blast_evalues, benchmark_dict, png_filename):
                 elif(isHomolog(evalue) and benchmark == 'different'):
                     x.append(x[-1] + 1)
                     y.append(y[-1])
+                    lowest_e_value_being_different.append(protein_pair)
+
 
             ## if e-value is the same as last e-value
             else:
@@ -133,6 +137,7 @@ def roc_plot(blast_evalues, benchmark_dict, png_filename):
                     y[-1] += 1
                 elif(isHomolog(evalue) and benchmark == 'different'):
                     x[-1] += 1
+                    lowest_e_value_being_different.append(protein_pair)
 
         except KeyError:
             ## If benchmark was not found, continue to next e-value
@@ -140,10 +145,10 @@ def roc_plot(blast_evalues, benchmark_dict, png_filename):
 
         last_evalue = evalue
 
+    # Find the lowest e-value that is being considered as different by SCOP
+    print(lowest_e_value_being_different[0])
+
     # In order to get the rates for every coordinate we divide by the total number (last entry)
-    print(x)
-    print(y)
-    
     x = numpy.array(x) / float(x[-1])
     y = numpy.array(y) / float(y[-1])
 
