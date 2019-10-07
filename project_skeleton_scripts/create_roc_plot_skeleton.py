@@ -128,7 +128,7 @@ def roc_plot(blast_evalues, benchmark_dict, png_filename):
                 elif(isHomolog(evalue) and benchmark == 'different'):
                     x.append(x[-1] + 1)
                     y.append(y[-1])
-                    lowest_e_value_being_different.append(protein_pair)
+                    lowest_e_value_being_different.append((protein_pair, evalue))
 
 
             ## if e-value is the same as last e-value
@@ -137,7 +137,7 @@ def roc_plot(blast_evalues, benchmark_dict, png_filename):
                     y[-1] += 1
                 elif(isHomolog(evalue) and benchmark == 'different'):
                     x[-1] += 1
-                    lowest_e_value_being_different.append(protein_pair)
+                    lowest_e_value_being_different.append((protein_pair, evalue))
 
         except KeyError:
             ## If benchmark was not found, continue to next e-value

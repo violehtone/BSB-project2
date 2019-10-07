@@ -19,10 +19,10 @@ def retrieve_scop_data(scop_file):
         reader = csv.reader(sf, delimiter="\t")
         for row in reader:
             if(row[0][0] != "#"):
-                ## Get the PDB (dic key)
+                ## Get the PDB (key)
                 pdb = row[1]
 
-                ## generate the scop hierarchy dic (dic value)
+                ## generate the scop hierarchy dic (= value for the PDB key)
                 scop_dic = {}
                 scop_hierarchy = [x.strip() for x in row[5].split(',')] # creates a list of SCOP hierarchy data
                 scop_class = scop_hierarchy[0].split("=", 1)[1]
@@ -38,7 +38,7 @@ def retrieve_scop_data(scop_file):
                 scop_dic["superfamily"] = scop_superfamily
                 scop_dic["family"] = scop_family
                 scop_dic["domain"] = scop_dm
-                scop_dic["species"] = scop_sp # similar
+                scop_dic["species"] = scop_sp
                 scop_dic["protein"] = scop_px
 
                 ## add an element to the scop_data dictionary

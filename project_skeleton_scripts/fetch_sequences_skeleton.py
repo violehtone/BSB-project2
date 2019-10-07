@@ -14,15 +14,12 @@ def fetch_one_fasta(uniprot_id):
     :param uniProtID: id of the protein to fetch in uniprot database.
     :return: sequence data in fasta format.
     """
-    # Define the variable 'url' as a string with the URL to the Fasta formatted sequence of the uniProtID
-    # in the uniprot website (www.uniprot.org).
+    # Defines the url for fetching a fasta formatted sequence of the uniProtID
     url = "https://uniprot.org/uniprot/" + str(uniprot_id) + ".fasta"
 
     fh = urllib.request.urlopen(url)
     result = fh.read().decode("utf8")
     fh.close()
-
-    print(result)
 
     return result
 

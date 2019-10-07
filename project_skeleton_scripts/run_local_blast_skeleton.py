@@ -21,15 +21,14 @@ def blast(db, query, eValue, query_folder="./queries/", psiblast=False):
     :param psiblast: True if PSI-BLAST should be used; False for normal BLAST
     :param e-value: Given e-value threshold
     :return: result from blast run
-
     """
     if not psiblast:
-        # Shell command for blast
+        # Shell command for blast (e-value threshold is optional)
         cmd = "blastp -query " + query_folder + "/" + query + ".fasta" + " -db " + db + " -outfmt '6 qacc sacc evalue' -comp_based_stats 0"
         if (evalue is not None):
             cmd += (" -evalue " + str(eValue))
     else:
-        # Shell command for psiblast
+        # Shell command for psiblast (e-value threshold is optional)
         cmd = "psiblast -query " + query_folder + "/" + query + ".fasta" " -db " + db + " -num_iterations 3  -outfmt '6 qacc sacc evalue' -comp_based_stats 0"
         if (evalue is not None):
             cmd += (" -evalue " + str(eValue))
@@ -65,7 +64,7 @@ def parse_blast_result(blast_result, blast_dict):
                 if not line.endswith('CONVERGED!'):
                     print ("\tCould not parse (psi-)blast response line:\n\t"+ line)
     
-    ##Remove protein pairs from blast_dict where 2 same proteins are compared (e-value = 0)
+    # Remove protein pairs from blast_dict where 2 same proteins are compared (e-value = 0)
     for key, value in blast_dict.copy().items():
         if value == 0:
             del blast_dict[key]
